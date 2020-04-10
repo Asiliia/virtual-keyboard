@@ -12,14 +12,13 @@ const KEY_COLLECTION_RUS = [
     "я", "ч", "с", "м", "и", "т", "ь", "б", "ю", "?","shift r", "↑",
     "ctrl l", "win", "alt l", "space", "alt r", "ctrl r", "←","↓", "→"
 ];
-const SPEC_BUTTONS = ["backspace", "tab", "del", "caps", "enter","shift l", "shift r", "ctrl l", "ctrl r", "win", "alt r", "alt l", "space"];
+const SPEC_BUTTONS = ["backspace", "tab", "del", "caps", "enter","shift l", "shift r", "ctrl l", "ctrl r", 
+"win", "alt r", "alt l", "space", "←","↓", "→", "↑"];
 const TRSL_BUTTONS = [
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "backspace",
     "tab", "\\","del", "caps", "enter","shift l", "/","shift r", "↑",
     "ctrl l", "win", "alt l", "space", "alt r", "ctrl r", "←","↓", "→",
-    "-", "=", "backspace", "tab"," \\","del","caps", "enter","shift l", 
-    "shift r", "↑", "ctrl l", "win", "alt l", "space", "alt r", "ctrl r", "←","↓", "→"
-];
+    "-", "=", "backspace"];
 
 class KeypadService {
     constructor() {
@@ -72,40 +71,39 @@ class KeypadService {
     }
 
     clickVirtualButton(btnName, isReal=false) {
-        let start =  isReal ? this._textarea.selectionStart - 1 : this._textarea.selectionStart;
+        let start =  isReal && this._textarea.selectionStart > 0 ? this._textarea.selectionStart - 1 : this._textarea.selectionStart;
         let end = isReal ? this._textarea.selectionEnd + 1 : this._textarea.selectionEnd;
         let res = this._state.value.split("");
         if (btnName === "backspace") {   
             start = this._textarea.selectionStart;
             this._state.value = this._state.value.replace(this._state.value.substring(start === end ? start - 1 : start, end), "");
-            this._updateTextarea(this._state.value, end - 1);
-        }
-        else if (btnName === "del") {
+            this._updateTextarea(this._state.value, end === 0 ? end : end - 1);
+        } else if (btnName === "del") {
             this._state.value = this._state.value.replace(this._state.value.substring(start === end ? start + 1 : start, end), "");
             end = this._textarea.selectionEnd;
             this._updateTextarea(this._state.value, end);
-        }
-        else if (btnName === "caps") {
+        } else if (btnName === "caps") {
             this._switchCapsLock();
             btn.classList.toggle("keypad__key-turnon", this._state.capsLock);
-        }
-        else if (btnName === "enter") {        
+        } else if (btnName === "enter") {        
             res.splice(start, 0, "\n");
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
-        }
-        else if (btnName === "space") {
+        } else if (btnName === "space") {
             res.splice(start, 0, " ");
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
-        }
-        else if (btnName === "tab") {
+        } else if (btnName === "tab") {
             start = this._textarea.selectionStart;
             res.splice(start, 0, (start === 0) ? "        " : " ");
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
-        }
-        else if (! SPEC_BUTTONS.some(b => b === btnName)) {
+        } else if (["←","↓", "→", "↑"].some(b => b === btnName)) {
+            start = this._textarea.selectionStart;
+            res.splice(start+1, 0, this._state.capsLock ? btnName.toUpperCase() : btnName.toLowerCase());
+            this._state.value = res.join("");
+            this._updateTextarea(this._state.value, start + 1);
+        } else if (! SPEC_BUTTONS.some(b => b === btnName)) {            
             res.splice(start, 0, this._state.capsLock ? btnName.toUpperCase() : btnName.toLowerCase());
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
@@ -129,7 +127,8 @@ class KeypadService {
                 break;
             case "Tab":
                 this._addOrRemoveClass("tab", isHold);
-                this.clickVirtualButton("tab", true);
+                if (isHold)
+                    this.clickVirtualButton("tab", true);
                 break; 
             case "Delete":   
                 this._addOrRemoveClass("del", isHold);
@@ -166,15 +165,23 @@ class KeypadService {
                 break;
             case "ArrowUp":
                 this._addOrRemoveClass("↑", isHold);
+                if (isHold)
+                    this.clickVirtualButton("↑", true);
                 break;
             case "ArrowDown":
                 this._addOrRemoveClass("↓", isHold);
+                if (isHold)
+                    this.clickVirtualButton("↓", true);
                 break;  
             case "ArrowRight":
                 this._addOrRemoveClass("→", isHold);
+                if (isHold)
+                    this.clickVirtualButton("→", true);
                 break;
             case "ArrowLeft":
                 this._addOrRemoveClass("←", isHold);
+                if (isHold)
+                    this.clickVirtualButton("←", true);
                 break;
             case "MetaLeft":
                 this._addOrRemoveClass("win", isHold);
@@ -229,8 +236,6 @@ class KeypadService {
                 this.clickVirtualButton("backspace", true); 
             else if (event.inputType === "deleteContentForward")
                 this.clickVirtualButton("del", true); 
-            else if (event.inputType === "deleteContentForward")
-                this.clickVirtualButton("del", true);
             return;
         }
         if (value === " ")
@@ -312,6 +317,8 @@ window.addEventListener("DOMContentLoaded", function () {
 let keysSwitchLanguage = new Set();
 
 window.addEventListener("keydown",  (event) => {
+    if (event.key.includes("Arrow")) 
+        event.preventDefault(); 
     if(event.ctrlKey)
         keysSwitchLanguage.add("Ctrl");
     if(event.key === "Meta")
@@ -320,6 +327,7 @@ window.addEventListener("keydown",  (event) => {
         SERVICE.changeKeyboardLayout();
     }
     SERVICE.onWithVirtual(event, true);
+
   });
 
 window.addEventListener("keyup", (event) => {
