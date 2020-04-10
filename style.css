@@ -2,6 +2,10 @@ body {
     background-color: #f0f0a8;
 }
 
+textarea, span {
+    font-family: system-ui;
+}
+
 textarea {
     display: block;
     position: relative;
@@ -9,8 +13,7 @@ textarea {
     margin-right: auto;
     width: 700px;
     height: 400px;
-    resize: none;
-    font-family: system-ui;
+    resize: none;  
     border-radius: 3px;
     font-size: large;
 }
@@ -49,6 +52,10 @@ textarea {
     padding: 0;
     position: relative;
     border-radius: 3px;
+}
+
+span {
+    color: #f0e6e6;
 }
 
 .keypad__key:hover {

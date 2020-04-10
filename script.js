@@ -15,9 +15,8 @@ const KEY_COLLECTION_RUS = [
 const SPEC_BUTTONS = ["backspace", "tab", "del", "caps", "enter","shift l", "shift r", "ctrl l", "ctrl r", 
 "win", "alt r", "alt l", "space", "←","↓", "→", "↑"];
 const TRSL_BUTTONS = [
-    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "backspace",
-    "tab", "\\","del", "caps", "enter","shift l", "/","shift r", "↑",
-    "ctrl l", "win", "alt l", "space", "alt r", "ctrl r", "←","↓", "→",
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "backspace", "tab", "\\","del", "caps", 
+    "enter","shift l", "/","shift r", "ctrl l", "win", "alt l", "space", "alt r", "ctrl r", "↑", "←","↓", "→",
     "-", "=", "backspace"];
 
 class KeypadService {
@@ -35,7 +34,7 @@ class KeypadService {
     showKeypad = () => {
         let isCyrillicInput = localStorage.getItem('isCyrillicInput');
         if (isCyrillicInput === null) {
-            localStorage.setItem('isCyrillicInput', true);
+            localStorage.setItem('isCyrillicInput', false);
         }            
         this._textarea = document.createElement("textarea"); 
         this._textarea.classList.add("use-keyboard-input");
@@ -43,11 +42,15 @@ class KeypadService {
         this._section.classList.add("keypad");
         this._keysWrap = document.createElement("div");
         this._keysWrap.classList.add("keypad__keys");
-        this._section.appendChild(this._keysWrap);
+        this._section.appendChild(this._keysWrap);      
         this._section.appendChild(this._textarea);
-        this._keysWrap.appendChild(this._createButtons());      
+        this._keysWrap.appendChild(this._createButtons());
+        this._keysWrap.appendChild(document.createElement("br"));
+        let span = document.createElement("span");
+        span.textContent = "Windows | Change language on the keyboard: Ctrl + Win";
+        this._keysWrap.appendChild(span);               
         document.body.appendChild(this._section);        
-        this._keys = Array.prototype.slice.call(this._keysWrap.querySelectorAll(".keypad__key"));
+        this._keys = [...this._keysWrap.querySelectorAll(".keypad__key")];
         this._textarea.focus();       
     }   
 
@@ -60,8 +63,7 @@ class KeypadService {
             localStorage.setItem('isCyrillicInput',  !JSON.parse(isCyrillicInput));
         }
         for (const key of this._keys) {
-            if (!TRSL_BUTTONS.some(b => b === key.textContent)) {
-    
+            if (!TRSL_BUTTONS.some(b => b === key.textContent)) {    
             let ltr = JSON.parse(localStorage.getItem("isCyrillicInput"))
                     ? KEY_COLLECTION_RUS[KEY_COLLECTION_ENG.indexOf(key.textContent.toLowerCase())]
                     : KEY_COLLECTION_ENG[KEY_COLLECTION_RUS.indexOf(key.textContent.toLowerCase())];
@@ -83,7 +85,7 @@ class KeypadService {
             this._updateTextarea(this._state.value, end);
         } else if (btnName === "caps") {
             this._switchCapsLock();
-            btn.classList.toggle("keypad__key-turnon", this._state.capsLock);
+            document.querySelector(".keypad__key-caps").classList.toggle("keypad__key-turnon", this._state.capsLock);
         } else if (btnName === "enter") {        
             res.splice(start, 0, "\n");
             this._state.value = res.join("");
@@ -103,7 +105,8 @@ class KeypadService {
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
         } else if (! SPEC_BUTTONS.some(b => b === btnName)) {     
-            let isUpper = (this._state.capsLock && shiftOrAlt.size === 0) || (! this._state.capsLock && shiftOrAlt.size > 0);
+            let isUpper = (this._state.capsLock && shifPress.size < 1) || (! this._state.capsLock && shifPress.size > 0);
+            console.log(shifPress.size);
             let letter = isUpper ? btnName.toUpperCase() : btnName.toLowerCase();       
             res.splice(start, 0, letter);
             this._state.value = res.join("");
@@ -118,7 +121,19 @@ class KeypadService {
             return;
         }
         if (event.code.includes("Key")) {
-            let srch = this._state.capsLock ? event.code.substring(3).toUpperCase() : event.code.substring(3).toLowerCase();
+            let value = event.code.substring(3).toUpperCase();
+            let findRus = KEY_COLLECTION_RUS.find(k => k.toLowerCase() === value.toLowerCase());
+            let findEng = KEY_COLLECTION_ENG.find(k => k.toLowerCase() === value.toLowerCase());
+            let isCyrillicInput = JSON.parse(localStorage.getItem('isCyrillicInput'));
+            let srch = "";
+            if ((isCyrillicInput && findRus) || (!isCyrillicInput && findEng))
+                srch = value;
+            else {
+                   srch = findRus 
+                        ? KEY_COLLECTION_ENG[KEY_COLLECTION_RUS.indexOf(findRus)]
+                        : KEY_COLLECTION_RUS[KEY_COLLECTION_ENG.indexOf(findEng)];        
+            }   
+            srch = this._state.capsLock ? srch.toUpperCase() : srch.toLowerCase();
             this._addOrRemoveClass(srch, isHold);
             return;
         }
@@ -231,7 +246,6 @@ class KeypadService {
         }
     }
 
-    
     updateTextareaReal(event) {
         const value = event.data;
         if(!value) {
@@ -283,12 +297,14 @@ class KeypadService {
             keyButton.setAttribute("type", "button");
             keyButton.classList.add("keypad__key");
             keyButton.textContent = key.toLowerCase();
-            part.appendChild(keyButton);
-
+            part.appendChild(keyButton); 
+            if (key === "caps") {
+                keyButton.classList.add("keypad__key-caps");
+            }
             if (["backspace", "caps", "enter"].includes(key))
-                    keyButton.classList.add("keypad__key-expand");  
+                keyButton.classList.add("keypad__key-expand");  
             if (key === "space")                           
-                    keyButton.classList.add("keypad__key-whitespace");           
+                keyButton.classList.add("keypad__key-whitespace");           
             if (["backspace", "del", "enter", "↑"].includes(key)) {
                 part.appendChild(document.createElement("br"));
             }
@@ -319,7 +335,7 @@ window.addEventListener("DOMContentLoaded", function () {
 });
 
 let keysSwitchLanguage = new Set();
-let shiftOrAlt = new Set();
+let shifPress = new Set();
 
 window.addEventListener("keydown",  (event) => {
     if (event.key.includes("Arrow") || event.key.includes("Backspace") || event.key.includes("Delete") || event.key.includes("Tab") || event.key.includes("Alt")) 
@@ -328,8 +344,8 @@ window.addEventListener("keydown",  (event) => {
         keysSwitchLanguage.add("Ctrl");
     if(event.key === "Meta")
         keysSwitchLanguage.add("Meta");
-    if(event.key.includes("Shift") || event.key.includes("Alt"))
-        shiftOrAlt.add("ShiftOrAlt");
+    if(event.key.includes("Shift"))
+        shifPress.add("Shift");
     if(keysSwitchLanguage.size > 1) 
         SERVICE.changeKeyboardLayout();
     SERVICE.onWithVirtual(event, true);
@@ -337,7 +353,9 @@ window.addEventListener("keydown",  (event) => {
 
 window.addEventListener("keyup", (event) => {
     keysSwitchLanguage.clear();
-    shiftOrAlt.clear();
+    if(event.key.includes("Shift")) {
+        shifPress.clear();
+    }
     SERVICE.onWithVirtual(event, false);
 });
 
