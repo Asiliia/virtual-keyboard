@@ -70,17 +70,16 @@ class KeypadService {
         }
     }
 
-    clickVirtualButton(btnName, isReal=false) {
+    clickVirtualButton(btnName, isReal = false) {
         let start =  isReal && this._textarea.selectionStart > 0 ? this._textarea.selectionStart - 1 : this._textarea.selectionStart;
         let end = isReal ? this._textarea.selectionEnd + 1 : this._textarea.selectionEnd;
         let res = this._state.value.split("");
         if (btnName === "backspace") {   
-            start = this._textarea.selectionStart;
             this._state.value = this._state.value.replace(this._state.value.substring(start === end ? start - 1 : start, end), "");
             this._updateTextarea(this._state.value, end === 0 ? end : end - 1);
         } else if (btnName === "del") {
+            start = this._textarea.selectionStart;
             this._state.value = this._state.value.replace(this._state.value.substring(start === end ? start + 1 : start, end), "");
-            end = this._textarea.selectionEnd;
             this._updateTextarea(this._state.value, end);
         } else if (btnName === "caps") {
             this._switchCapsLock();
@@ -100,11 +99,13 @@ class KeypadService {
             this._updateTextarea(this._state.value, start + 1);
         } else if (["←","↓", "→", "↑"].some(b => b === btnName)) {
             start = this._textarea.selectionStart;
-            res.splice(start+1, 0, this._state.capsLock ? btnName.toUpperCase() : btnName.toLowerCase());
+            res.splice(start+1, 0, btnName);
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
-        } else if (! SPEC_BUTTONS.some(b => b === btnName)) {            
-            res.splice(start, 0, this._state.capsLock ? btnName.toUpperCase() : btnName.toLowerCase());
+        } else if (! SPEC_BUTTONS.some(b => b === btnName)) {     
+            let isUpper = (this._state.capsLock && shiftOrAlt.size === 0) || (! this._state.capsLock && shiftOrAlt.size > 0);
+            let letter = isUpper ? btnName.toUpperCase() : btnName.toLowerCase();       
+            res.splice(start, 0, letter);
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
         }
@@ -124,6 +125,8 @@ class KeypadService {
         switch (event.code) {
             case "Backspace":
                 this._addOrRemoveClass("backspace", isHold);
+                if (isHold) 
+                    this.clickVirtualButton("backspace", true);              
                 break;
             case "Tab":
                 this._addOrRemoveClass("tab", isHold);
@@ -132,6 +135,8 @@ class KeypadService {
                 break; 
             case "Delete":   
                 this._addOrRemoveClass("del", isHold);
+                if (isHold)
+                    this.clickVirtualButton("del", true);
                 break; 
             case "CapsLock":
                 this._addOrRemoveClass("caps", isHold); 
@@ -305,7 +310,6 @@ class KeypadService {
                 : key.textContent.toLowerCase();
         }
     }
-
 }
 
 const SERVICE = new KeypadService();
@@ -315,23 +319,25 @@ window.addEventListener("DOMContentLoaded", function () {
 });
 
 let keysSwitchLanguage = new Set();
+let shiftOrAlt = new Set();
 
 window.addEventListener("keydown",  (event) => {
-    if (event.key.includes("Arrow")) 
+    if (event.key.includes("Arrow") || event.key.includes("Backspace") || event.key.includes("Delete") || event.key.includes("Tab") || event.key.includes("Alt")) 
         event.preventDefault(); 
     if(event.ctrlKey)
         keysSwitchLanguage.add("Ctrl");
     if(event.key === "Meta")
         keysSwitchLanguage.add("Meta");
-    if(keysSwitchLanguage.size > 1) {
+    if(event.key.includes("Shift") || event.key.includes("Alt"))
+        shiftOrAlt.add("ShiftOrAlt");
+    if(keysSwitchLanguage.size > 1) 
         SERVICE.changeKeyboardLayout();
-    }
     SERVICE.onWithVirtual(event, true);
-
   });
 
 window.addEventListener("keyup", (event) => {
     keysSwitchLanguage.clear();
+    shiftOrAlt.clear();
     SERVICE.onWithVirtual(event, false);
 });
 
