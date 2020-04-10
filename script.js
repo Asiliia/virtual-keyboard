@@ -71,48 +71,41 @@ class KeypadService {
         }
     }
 
-    clickVirtualButton(btn) {
-        let btnName = btn.innerText;
-        if (btnName === "backspace") {
-            let start = this._textarea.selectionStart;
-            let end = this._textarea.selectionEnd;
+    clickVirtualButton(btnName, isReal=false) {
+        let start =  isReal ? this._textarea.selectionStart - 1 : this._textarea.selectionStart;
+        let end = isReal ? this._textarea.selectionEnd + 1 : this._textarea.selectionEnd;
+        let res = this._state.value.split("");
+        if (btnName === "backspace") {   
+            start = this._textarea.selectionStart;
             this._state.value = this._state.value.replace(this._state.value.substring(start === end ? start - 1 : start, end), "");
             this._updateTextarea(this._state.value, end - 1);
         }
         else if (btnName === "del") {
-            let start = this._textarea.selectionStart;
-            let end = this._textarea.selectionEnd;
             this._state.value = this._state.value.replace(this._state.value.substring(start === end ? start + 1 : start, end), "");
-            this._updateTextarea(this._state.value, end + 1);
+            end = this._textarea.selectionEnd;
+            this._updateTextarea(this._state.value, end);
         }
         else if (btnName === "caps") {
             this._switchCapsLock();
             btn.classList.toggle("keypad__key-turnon", this._state.capsLock);
         }
-        else if (btnName === "enter") {
-            let start = this._textarea.selectionStart;
-            let res = this._state.value.split("");
+        else if (btnName === "enter") {        
             res.splice(start, 0, "\n");
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
         }
         else if (btnName === "space") {
-            let start = this._textarea.selectionStart;
-            let res = this._state.value.split("");
             res.splice(start, 0, " ");
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
         }
         else if (btnName === "tab") {
-            let start = this._textarea.selectionStart;
-            let res = this._state.value.split("");
-            res.splice(start, 0, "        ");
+            start = this._textarea.selectionStart;
+            res.splice(start, 0, (start === 0) ? "        " : " ");
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
         }
         else if (! SPEC_BUTTONS.some(b => b === btnName)) {
-            let start = this._textarea.selectionStart;
-            let res = this._state.value.split("");
             res.splice(start, 0, this._state.capsLock ? btnName.toUpperCase() : btnName.toLowerCase());
             this._state.value = res.join("");
             this._updateTextarea(this._state.value, start + 1);
@@ -136,6 +129,7 @@ class KeypadService {
                 break;
             case "Tab":
                 this._addOrRemoveClass("tab", isHold);
+                this.clickVirtualButton("tab", true);
                 break; 
             case "Delete":   
                 this._addOrRemoveClass("del", isHold);
@@ -226,28 +220,36 @@ class KeypadService {
     }
 
     
-    updateTextareaReal(value) {
-        if(value === null) {
+    updateTextareaReal(event) {
+        const value = event.data;
+        if(!value) {
+            if (event.inputType === "insertLineBreak") 
+                this. clickVirtualButton("enter", true);  
+            else if (event.inputType === "deleteContentBackward")    
+                this.clickVirtualButton("backspace", true); 
+            else if (event.inputType === "deleteContentForward")
+                this.clickVirtualButton("del", true); 
+            else if (event.inputType === "deleteContentForward")
+                this.clickVirtualButton("del", true);
             return;
         }
-        this._textarea.value = this._textarea.value.substr(0, this._textarea.value.length - 1);
+        if (value === " ")
+            this.clickVirtualButton(value, true);
         let findRus = KEY_COLLECTION_RUS.find(k => k.toLowerCase() === value.toLowerCase());
         let findEng = KEY_COLLECTION_ENG.find(k => k.toLowerCase() === value.toLowerCase());
         let isCyrillicInput = JSON.parse(localStorage.getItem('isCyrillicInput'));
         if ((isCyrillicInput && findRus) || (!isCyrillicInput && findEng))
-            this._state.value += value  
+            this.clickVirtualButton(value, true);
         else {
             if (findRus) {
                let ltrRus = KEY_COLLECTION_ENG[KEY_COLLECTION_RUS.indexOf(findRus)];
-               this._state.value +=  this._state.capsLock ? ltrRus.toUpperCase() : ltrRus.toLowerCase();
+               this.clickVirtualButton(ltrRus, true);
             }  
             else {              
                 let ltrEng = KEY_COLLECTION_RUS[KEY_COLLECTION_ENG.indexOf(findEng)];
-                this._state.value +=  this._state.capsLock ? ltrEng.toUpperCase() : ltrEng.toLowerCase();
+                this.clickVirtualButton(ltrEng, true);
             }             
         }   
-        this._textarea.value = this._state.value;   
-        document.querySelector("textarea").focus(); 
     }
 
     _addOrRemoveClass(btnName, isHold) {
@@ -327,9 +329,9 @@ window.addEventListener("keyup", (event) => {
 
 window.addEventListener("click", (event) => {
     if(event.target.type === "button")    
-        SERVICE.clickVirtualButton(event.target);
+        SERVICE.clickVirtualButton(event.target.innerText);
 });
 
 window.addEventListener("input", (event) => {
-    SERVICE.updateTextareaReal(event.data);
+    SERVICE.updateTextareaReal(event);
 });
