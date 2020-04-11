@@ -257,8 +257,10 @@ class KeypadService {
                 this.clickVirtualButton("del", true); 
             return;
         }
-        if (value === " ")
+        if (value === " ") {
             this.clickVirtualButton(value, true);
+            return;
+        }
         let findRus = KEY_COLLECTION_RUS.find(k => k.toLowerCase() === value.toLowerCase());
         let findEng = KEY_COLLECTION_ENG.find(k => k.toLowerCase() === value.toLowerCase());
         let isCyrillicInput = JSON.parse(localStorage.getItem('isCyrillicInput'));
