@@ -67,14 +67,17 @@ const BTNS = {
 
 const BTNS_KEYS = Object.keys(BTNS).reduce((acc, cur) => ({ ...acc, [cur]: cur }), {});
 
-const BTNS_SPEC = [BTNS_KEYS.Backspace, BTNS_KEYS.Tab, BTNS_KEYS.Delete, BTNS_KEYS.CapsLock, BTNS_KEYS.Enter, BTNS_KEYS.ShiftLeft, BTNS_KEYS.ShiftRight,
-    BTNS_KEYS.ControlLeft, BTNS_KEYS.ControlRight, BTNS_KEYS.MetaLeft, BTNS_KEYS.AltLeft, BTNS_KEYS.AltRight, BTNS_KEYS.Space, BTNS_KEYS.ArrowRight,
-    BTNS_KEYS.ArrowLeft, BTNS_KEYS.ArrowUp, BTNS_KEYS.ArrowDown].reduce((acc, cur) => ({ ...acc, [cur]: cur }), {});
+const BTNS_SPEC = [BTNS_KEYS.Backspace, BTNS_KEYS.Tab, BTNS_KEYS.Delete, BTNS_KEYS.CapsLock, BTNS_KEYS.Enter, 
+    BTNS_KEYS.ShiftLeft, BTNS_KEYS.ShiftRight, BTNS_KEYS.ControlLeft, BTNS_KEYS.ControlRight, BTNS_KEYS.MetaLeft, 
+    BTNS_KEYS.AltLeft, BTNS_KEYS.AltRight, BTNS_KEYS.Space, BTNS_KEYS.ArrowRight, BTNS_KEYS.ArrowLeft,
+    BTNS_KEYS.ArrowUp, BTNS_KEYS.ArrowDown].reduce((acc, cur) => ({ ...acc, [cur]: cur }), {});
 
-const BTNS_SPEC_EXPD = [BTNS_KEYS.Digit0, BTNS_KEYS.Digit1, BTNS_KEYS.Digit2, BTNS_KEYS.Digit3, BTNS_KEYS.Digit4, BTNS_KEYS.Digit5, BTNS_KEYS.Digit6, BTNS_KEYS.Digit7, BTNS_KEYS.Digit8,
-    BTNS_KEYS.Digit9, BTNS_KEYS.Minus, BTNS_KEYS.Equal, BTNS_KEYS.Backspace, BTNS_KEYS.Tab, BTNS_KEYS.Backslash, BTNS_KEYS.Delete, BTNS_KEYS.CapsLock, BTNS_KEYS.Enter,
-    BTNS_KEYS.ShiftLeft, BTNS_KEYS.ShiftRight, BTNS_KEYS.Slash, BTNS_KEYS.ControlRight, BTNS_KEYS.ControlLeft, BTNS_KEYS.MetaLeft, BTNS_KEYS.AltRight, BTNS_KEYS.AltLeft,
-    BTNS_KEYS.ArrowLeft, BTNS_KEYS.Space, BTNS_KEYS.ArrowLeft, BTNS_KEYS.ArrowRight, BTNS_KEYS.ArrowUp, BTNS_KEYS.ArrowDown].reduce((acc, cur) => ({ ...acc, [cur]: cur }), {});;
+const BTNS_SPEC_EXPD = [BTNS_KEYS.Digit0, BTNS_KEYS.Digit1, BTNS_KEYS.Digit2, BTNS_KEYS.Digit3, BTNS_KEYS.Digit4, 
+    BTNS_KEYS.Digit5, BTNS_KEYS.Digit6, BTNS_KEYS.Digit7, BTNS_KEYS.Digit8, BTNS_KEYS.Digit9, BTNS_KEYS.Minus, 
+    BTNS_KEYS.Equal, BTNS_KEYS.Backspace, BTNS_KEYS.Tab, BTNS_KEYS.Backslash, BTNS_KEYS.Delete, BTNS_KEYS.CapsLock, 
+    BTNS_KEYS.Enter, BTNS_KEYS.ShiftLeft, BTNS_KEYS.ShiftRight, BTNS_KEYS.Slash, BTNS_KEYS.ControlRight, BTNS_KEYS.ControlLeft, 
+    BTNS_KEYS.MetaLeft, BTNS_KEYS.AltRight, BTNS_KEYS.AltLeft, BTNS_KEYS.ArrowLeft, BTNS_KEYS.Space, BTNS_KEYS.ArrowLeft, 
+    BTNS_KEYS.ArrowRight, BTNS_KEYS.ArrowUp, BTNS_KEYS.ArrowDown].reduce((acc, cur) => ({ ...acc, [cur]: cur }), {});;
 
 class KeypadService {
     constructor() {
