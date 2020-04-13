@@ -251,7 +251,7 @@ document.addEventListener("keydown",  (event) => {
         keysSwitchLanguage.add("Ctrl");
     if(event.code === BTNS_KEYS.AltLeft || event.code === BTNS_KEYS.AltRight)
         keysSwitchLanguage.add("Alt");
-    if(event.code === BTNS_KEYS.ShiftLeft || event.code === BTNS_KEYS.AltRight)
+    if(event.code === BTNS_KEYS.ShiftLeft || event.code === BTNS_KEYS.ShiftRight)
         shifPress.add("Shift");
     if(keysSwitchLanguage.size > 1) 
         SERVICE.changeKeyboardLayout();
