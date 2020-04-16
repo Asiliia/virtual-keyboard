@@ -155,10 +155,10 @@ class KeypadService {
             this._handleText(" ", start);
         } else if (btnName === BTNS_KEYS.Tab) {            
             this._handleText((start === 0) ? "        " : " ", start);
-        } else if ([BTNS_KEYS.ArrowUp, BTNS_KEYS.ArrowDown, BTNS_KEYS.ArrowLeft, BTNS_KEYS.ArrowRight].some(k => k === btnName)) {
+        } else if (this._arrowBtnPressed(btnName)) {
             this._handleText(BTNS[btnName][0], start);
-        } else if (!Object.keys(BTNS_SPEC).some(b => b === btnName)) {     
-            let isUpper = (this._state.capsLock && shifPress.size < 1) || (! this._state.capsLock && shifPress.size > 0);
+        } else if (!Object.keys(BTNS_SPEC).includes(btnName)) {     
+            let isUpper = (this._state.capsLock && shifPress.size < 1) || (!this._state.capsLock && shifPress.size > 0);
             let btnVal = this._getCyrillicInput()
                         ? BTNS[btnName][1] 
                         : BTNS[btnName][0]; 
@@ -178,7 +178,6 @@ class KeypadService {
         this.clickVirtualButton(event.code);
     }
 
-    
     _handleText(value, pos) {
         let res = this._state.value.split("");
         res.splice(pos, 0, value);
@@ -236,17 +235,21 @@ class KeypadService {
     _updateTextarea(value, pos) {
         this._textarea.value = value;
         this._textarea.focus(); 
-        this._textarea.setSelectionRange( pos, pos);
+        this._textarea.setSelectionRange(pos, pos);
     }
 
     _switchCapsLock() {
         this._state.capsLock = !this._state.capsLock;          
         for (const key of this._keys) {
-            key.textContent = this._state.capsLock && !Object.keys(BTNS_SPEC).some(b => b === key.id) 
+            key.textContent = this._state.capsLock && !Object.keys(BTNS_SPEC).includes(key.id) 
                 ? key.textContent.toUpperCase() 
                 : key.textContent.toLowerCase();
         }
     }    
+
+    _arrowBtnPressed(btn) {
+        return [BTNS_KEYS.ArrowUp, BTNS_KEYS.ArrowDown, BTNS_KEYS.ArrowLeft, BTNS_KEYS.ArrowRight].includes(btn);
+    }
 }
 
 const SERVICE = new KeypadService();
