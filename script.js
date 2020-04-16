@@ -105,25 +105,6 @@ class KeypadService {
         this._keys = [...this._keysWrap.querySelectorAll(".keypad__key")];         
     }   
 
-    _addTextArea(){
-        this._textarea = document.createElement("textarea"); 
-        this._textarea.classList.add("use-keyboard-input");
-        this._textarea.focus();   
-    }
-
-    _addKeypad() {
-        this._section = document.createElement("div");
-        this._section.classList.add("keypad");
-        this._keysWrap = document.createElement("div");
-        this._keysWrap.classList.add("keypad__keys");
-    }
-
-    _addDescription() {
-        let span = document.createElement("span");
-        span.textContent = "Windows | To change language on the keyboard: Ctrl + Alt";
-        return span;
-    }
-
     changeKeyboardLayout() {
         this._setCyrillicInput();
         for (const key of this._keys) {
@@ -176,6 +157,25 @@ class KeypadService {
 
     updateTextareaReal(event) {
         this.clickVirtualButton(event.code);
+    }
+
+    _addTextArea(){
+        this._textarea = document.createElement("textarea"); 
+        this._textarea.classList.add("use-keyboard-input");
+        this._textarea.focus();   
+    }
+
+    _addKeypad() {
+        this._section = document.createElement("div");
+        this._section.classList.add("keypad");
+        this._keysWrap = document.createElement("div");
+        this._keysWrap.classList.add("keypad__keys");
+    }
+
+    _addDescription() {
+        let span = document.createElement("span");
+        span.textContent = "Windows | To change language on the keyboard: Ctrl + Alt";
+        return span;
     }
 
     _handleText(value, pos) {
