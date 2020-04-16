@@ -93,24 +93,36 @@ class KeypadService {
     }
 
     showKeypad = () => {
-        this._getCyrillicInput();
+        this._getCyrillicInput();   
+        this._addTextArea();
+        this._addKeypad();   
+        this._section.appendChild(this._keysWrap);      
+        this._section.appendChild(this._textarea);
+        this._keysWrap.appendChild(this._createButtons());
+        this._keysWrap.appendChild(document.createElement("br"));        
+        this._keysWrap.appendChild(this._addDescription());               
+        document.body.appendChild(this._section); 
+        this._keys = [...this._keysWrap.querySelectorAll(".keypad__key")];         
+    }   
+
+    _addTextArea(){
         this._textarea = document.createElement("textarea"); 
         this._textarea.classList.add("use-keyboard-input");
+        this._textarea.focus();   
+    }
+
+    _addKeypad() {
         this._section = document.createElement("div");
         this._section.classList.add("keypad");
         this._keysWrap = document.createElement("div");
         this._keysWrap.classList.add("keypad__keys");
-        this._section.appendChild(this._keysWrap);      
-        this._section.appendChild(this._textarea);
-        this._keysWrap.appendChild(this._createButtons());
-        this._keysWrap.appendChild(document.createElement("br"));
+    }
+
+    _addDescription() {
         let span = document.createElement("span");
         span.textContent = "Windows | To change language on the keyboard: Ctrl + Alt";
-        this._keysWrap.appendChild(span);               
-        document.body.appendChild(this._section);        
-        this._keys = [...this._keysWrap.querySelectorAll(".keypad__key")];
-        this._textarea.focus();    
-    }   
+        return span;
+    }
 
     changeKeyboardLayout() {
         this._setCyrillicInput();
